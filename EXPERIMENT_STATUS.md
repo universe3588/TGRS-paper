@@ -57,10 +57,10 @@
 
 | ID | 优先级 | 内容 | 是否挡投稿 |
 |----|--------|------|------------|
-| Ex15 | **P0** | 定性对比图（原图/GT/教师/学生） | 强烈建议补 |
-| Ex16 | P1 | 失败案例 / 极低 SCR | 建议补 |
-| Ex09 | P2 | α 与分层配额敏感性 | 增强 |
-| Knockout | P2 | 敲除曲线现为示意，需 GPU 实测 CSV | 增强 |
+| Ex15 | **已完成** | `images/fig_qualitative.png`；正文 `fig:qual` | 否 |
+| Ex16 | **已完成** | `images/fig_qualitative_fail.png`；正文 `fig:qual_fail` | 否 |
+| Ex09 | 取消 | 正文默认 α=0.7 + 浅层保护配额；task/contrast 已覆盖 α 极端 | 否 |
+| Knockout | **已完成** | 实测 CSV + MATLAB 图 `fig_knockout_curves`；正文已去 SCHEMATIC | 否 |
 | Ex18 | P0 行政 | 基金、单位、通信作者、作者简介 | 投稿必填 |
 | EN | **P0** | 英文全文（TGRS 硬性） | 投稿必填 |
 | INT8/功耗 | P2 | 可选 | 否 |

@@ -161,8 +161,7 @@ I_{\mathrm{contrast}}(g,c)=\mathbb{E}\!\big[\bar{A}_{c}^{\mathrm{tgt}}-\bar{A}_{
 
 \textbf{可选校准：}
 Top-$k$/Bottom-$k$ 通道敲除曲线可与 $\ell_1$、随机剪枝对照，以加强 $I$ 的因果解释。
-主文以表~\ref{tab:criterion}与图~\ref{fig:criterion}的同压缩率准则对照为实测证据；逐步敲除曲线见图~\ref{fig:knockout}。
-\ExpTodo{Knockout}{图~\ref{fig:knockout} 现为示意形态；请用 GPU 逐步敲除实测 CSV 替换后重绘。}
+主文以表~\ref{tab:criterion}与图~\ref{fig:criterion}的同压缩率准则对照为实测证据；逐步敲除曲线见图~\ref{fig:knockout}（DNA-Net/NUAA 教师，不重训）。
 
 \subsection{结构化压缩}
 \label{sec:prune}
@@ -387,7 +386,7 @@ L$^2$SKNet-UNet & 0.90 & 0.5859 & 0.5207 & \textbf{0.9355} & 0.6765 & 0.6797 \\
 表~\ref{tab:criterion}与图~\ref{fig:criterion}在相同压缩率与完整蒸馏下比较重要性准则。随机剪枝即可恢复至约 $0.72$；仅 $I_{\mathrm{task}}$ / 仅 $I_{\mathrm{contrast}}$ 为 $0.7374$/$0.7408$。
 $\ell_1$ 首次训练崩溃后修复重跑达 $0.7595$，但稳定性不如本文评分。
 完整 $I$ 消融复现为 $0.7188$、主实验为 $0.7387$，与 task/contrast 同属可用区间。结合表~\ref{tab:distill}与图~\ref{fig:distill}，评分用于\textbf{可迁移地选择通道}；跨骨干一致性与板端收益是协议主体证据。
-\ExpTodo{Ex09}{$\alpha$ 与分层配额 $\{p_s\}$ 敏感性曲线（增强项）。}
+全文默认 $\alpha=0.7$，分层配额采用浅层保护、深层多剪的经验设定（DNA-Net 为 $p=(0.2,0.3,0.4,0.5,0.6)$）；$\alpha=0/1$ 的极端情形已由仅 $I_{\mathrm{contrast}}$ / 仅 $I_{\mathrm{task}}$ 消融覆盖，故不再单独绘制 $\alpha$ 与 $\{p_s\}$ 敏感性曲线。
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.12}
@@ -425,25 +424,30 @@ $\ell_1$ 权重 & 0.7595$^{\ast}$ \\
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.92\columnwidth]{fig_knockout_curves.png}
-\caption{Top-$k$/Bottom-$k$ 通道敲除 IoU 掉点示意（DNA-Net/NUAA），并与随机与 $\ell_1$ 对照。\textcolor{red}{SCHEMATIC：正式投稿前建议用实测 CSV 重绘。}}
+\caption{通道敲除校准曲线（DNA-Net/NUAA 教师，不重训）。按重要性 $I$ 去掉 Top-$k$ 通道时 IoU 下降最快；去掉 Bottom-$k$ 冗余通道时下降最慢；随机与 $\ell_1$ 介于二者之间。}
 \label{fig:knockout}
 \end{figure}
 
 \subsection{定性结果}
 \label{sec:qual}
 
+图~\ref{fig:qual}给出 DNA-Net 教师与学生在难集 NUAA-SIRST、SIRST-V2 上的典型对照（原图 / GT / 教师 / 学生）。红色框表示正确检测，右下角为局部放大。所选样本覆盖不同 SCR 与背景类型；整体上学生与教师的目标定位高度一致，掩膜形状仅有轻微差异，与主表 IoU/$P_d$ 持平结论相符。
+
 \begin{figure*}[!t]
 \centering
-\fbox{\parbox{0.92\textwidth}{\centering\vspace{1.0cm}
-\textcolor{red}{\textbf{【待补-Ex15】定性对比图}}\\[0.4em]
-\textcolor{red}{建议版式（双栏通栏）：同一行依次为原图 / GT / 教师 / 学生；}\\
-\textcolor{red}{至少覆盖 NUAA 与 SIRST-V2（难集）各 $2$--$3$ 例，并标注正确检测、漏检与虚警。}\\[0.2em]
-\vspace{1.0cm}}}
-\caption{定性检测结果对比。\ExpTodo{Ex15}{替换本占位框为实际拼图。}}
+\includegraphics[width=0.98\textwidth]{fig_qualitative.png}
+\caption{定性检测结果（DNA-Net）。列：红外原图、真值、教师、学生。红框=正确检测；黄框=漏检；蓝框=虚警；右下角为局部放大。样本取自 NUAA-SIRST 与 SIRST-V2。}
 \label{fig:qual}
 \end{figure*}
 
-\ExpTodo{Ex16}{补充极低 SCR / 复杂杂波失败案例，并与教师对照讨论。}
+图~\ref{fig:qual_fail}补充失败/困难案例对照。NUAA 的 Misc\_229 上教师漏检而学生仍检出，说明压缩学生并非系统性弱于教师；SIRST-V2 的极低对比样本上师生均漏检，表明瓶颈更多来自场景本身而非压缩引入的额外劣化。
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.98\textwidth]{fig_qualitative_fail.png}
+\caption{困难/失败案例对照（DNA-Net）。上：教师漏检、学生检出；下：极低对比目标上师生均漏检。框色含义同图~\ref{fig:qual}。}
+\label{fig:qual_fail}
+\end{figure*}
 
 \subsection{讨论}
 \label{sec:discuss}
@@ -455,11 +459,10 @@ $\ell_1$ 权重 & 0.7595$^{\ast}$ \\
 
 \textbf{局限：}
 （1）SCTransNet 仅压缩 CNN 宽度，未削减 Transformer 层数；
-（2）敲除曲线目前为示意（图~\ref{fig:knockout}）；
-（3）外部对照以 Params 同量级难集精度为主，未纳入从零轻量板端竞速；
-（4）单位帧能耗需功率计；
-（5）极低 SCR 失败案例仍待定性展示；
-（6）TGRS 正式稿需英文全文与完整作者信息。
+（2）外部对照以 Params 同量级难集精度为主，未纳入从零轻量板端竞速；
+（3）单位帧能耗需功率计；
+（4）定性图以 DNA-Net 师生为主，其余骨干未逐一展示；
+（5）TGRS 正式稿需英文全文与完整作者信息。
 
 %==============================================================================
 \section{结论}
@@ -481,10 +484,12 @@ $\ell_1$ 权重 & 0.7595$^{\ast}$ \\
 \toprule
 优先级 & 编号 & 内容 \\
 \midrule
-P0 & Ex15 / EN / Affil & 定性图；英文全文；单位/通信作者/基金 \\
-P1 & Ex16 & 失败案例可视化 \\
-P2 & Knockout / Ex09 / INT8 & 敲除实测；$\alpha$/配额敏感性；INT8/功耗 \\
+P0 & EN / Affil & 英文全文；单位/通信作者/基金 \\
+P0 & Ex15/Ex16 & \textcolor{blue}{已完成}：图~\ref{fig:qual}/\ref{fig:qual_fail} \\
+P2 & Knockout & \textcolor{blue}{已完成}：图~\ref{fig:knockout} \\
+P2 & INT8 & INT8/功耗（可选） \\
 P2 & SAGCP & 全文绝对表（可选） \\
+--- & Ex09 & 已取消：正文默认 $\alpha=0.7$ + 浅层保护配额 \\
 \bottomrule
 \end{tabular}
 \end{center}
