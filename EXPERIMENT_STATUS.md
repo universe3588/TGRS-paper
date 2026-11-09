@@ -1,40 +1,41 @@
-# 实验数据梳理（2026-11-08）
+# 实验与投稿审计（2026-11-09）
 
-对应稿件：`bare_jrnl_new_sample4.tex`。原始数值见 `../pd_fa_eval/` 与 `../deploy_rk3588/outputs/`。
+对应稿件：`bare_jrnl_new_sample4.tex`（IEEEtran journal；中文技术定稿草稿）。  
+**TGRS 正式投稿必须改为英文全文**；本稿先锁定数据、叙事与版式。
 
-## 1. 已齐（可关机）
+---
 
-| 项 | 状态 | 落点 |
-|----|------|------|
-| DNA/UIU/MSH 师生 IoU | 齐 | 表 `tab:main_iou` |
-| SCTrans v3 师生 IoU | 齐 | 同上（均值 0.7907→0.7858） |
-| 统一 Pd/Fa（32 组） | 齐 | 表 `tab:main_pdfa` |
-| DNA fair re-eval | 齐 | 与主表 IoU 一致，已写入正文 |
-| 四骨干 RK3588 资源 | 齐 | 表 `tab:resource`（含 SCTrans） |
+## A. 论文叙事（三句话）
 
-## 2. 精度结论（一句话）
+1. **高精度模型可压**：同骨干教师→学生，IoU/Pd 总体保持，Params/FLOPs/板端下降。  
+2. **从零轻量难集不够**：相近 Params 下 L²SKNet 在 NUAA / SIRST-V2 明显弱于 DNA 学生；易集可打平。  
+3. **板端只比师生**：回答“压缩后更省多少”，不做轻量模型竞速。
 
-压缩后 **IoU / Pd 未系统性下降**；DNA 学生 IoU 明显上升（结构正则+区域损失）；SCTrans 均值略降 0.49pp（IRSTD/SIRST-V2 拖累）；Pd 四骨干均值学生≥教师；Fa 多数持平，IRSTD 上个别升高可接受。
+---
 
-### IoU 主表均值
+## B. 已齐数据（可写进主文）
+
+| 模块 | 状态 | 落点 |
+|------|------|------|
+| DNA/UIU/MSH/SCTrans 师生 IoU | 齐 | `tab:main_iou` |
+| 统一 Pd/Fa（32 组） | 齐 | `tab:main_pdfa` |
+| DNA fair re-eval | 齐 | 正文说明 |
+| 四骨干 RK3588 | 齐 | `tab:resource` |
+| DNA 蒸馏/准则消融 | 齐 | `tab:distill` / `tab:criterion` |
+| 难集 H1（DNA vs L2SK） | 齐 | `tab:h1_hard` |
+| Pareto / 准则柱 / 蒸馏柱 | 齐 | Fig. pareto/criterion/distill |
+| 流程图 fig1 | 齐 | `fig:pipeline` |
+
+### IoU 均值
 
 | 骨干 | 教师 | 学生 | Δ |
 |------|------|------|---|
-| DNA | 0.7250 | 0.7696 | +4.46pp |
-| UIU | 0.7804 | 0.7819 | +0.15pp |
-| MSH | 0.7142 | 0.7140 | −0.02pp |
-| SCTrans | 0.7907 | 0.7858 | −0.49pp |
+| DNA | 0.7250 | 0.7696 | +4.46 pp |
+| UIU | 0.7804 | 0.7819 | +0.15 pp |
+| MSH | 0.7142 | 0.7140 | −0.02 pp |
+| SCTrans | 0.7907 | 0.7858 | −0.49 pp |
 
-### Pd 均值（统一脚本）
-
-| 骨干 | 教师 | 学生 |
-|------|------|------|
-| DNA | 0.9372 | 0.9599 |
-| UIU | 0.9560 | 0.9658 |
-| MSH | 0.9498 | 0.9526 |
-| SCTrans | 0.9506 | 0.9690 |
-
-## 3. 板端结论（NUAA@256）
+### 板端（NUAA@256，相对教师）
 
 | 骨干 | Params | FLOPs | 延迟 |
 |------|--------|-------|------|
@@ -43,45 +44,47 @@
 | MSH | −78.2% | −61.5% | −21.9% |
 | SCTrans | −49.5% | −34.2% | −14.3% |
 
-共性：**FLOPs↓ 不等于 延迟等比↓**（DNA / SCTrans 最明显）。SCTrans 压缩比更弱，因 Transformer 层未剪。
+### H1 难集（分集训 IoU）
 
-## 4. DNA 消融（已跑完，已填表）
+| | Params | NUAA | SIRST-V2 | NUDT | IRSTD | 均值 |
+|--|--------|------|----------|------|-------|------|
+| DNA 学生 | 1.13M | **0.739** | **0.746** | 0.923 | 0.671 | **0.770** |
+| L2SK | 0.90M | 0.586 | 0.521 | **0.936** | 0.677 | 0.680 |
 
-来源：`Infrared-Small-Target-Detection-master/compress_runs/.../ablation_stable_*` + `ablation_repair_*`。
+---
 
-**蒸馏 Group A**
+## C. 仍缺（正文已标红 `\ExpTodo`）
 
-| 设置 | NUAA | NUDT |
-|------|------|------|
-| A1 不重训 | 0.0081 | 0.2183 |
-| A2 仅 GT | 0.7454 | 0.9149 |
-| A3 +region | 0.7551 | 0.9180 |
-| A4 +KD | 0.7188（复现）/ 主表 0.7387 | 0.9184（λ_kd=0.5；λ_kd=1 曾崩） |
+| ID | 优先级 | 内容 | 是否挡投稿 |
+|----|--------|------|------------|
+| Ex15 | **P0** | 定性对比图（原图/GT/教师/学生） | 强烈建议补 |
+| Ex16 | P1 | 失败案例 / 极低 SCR | 建议补 |
+| Ex09 | P2 | α 与分层配额敏感性 | 增强 |
+| Knockout | P2 | 敲除曲线现为示意，需 GPU 实测 CSV | 增强 |
+| Ex18 | P0 行政 | 基金、单位、通信作者、作者简介 | 投稿必填 |
+| EN | **P0** | 英文全文（TGRS 硬性） | 投稿必填 |
+| INT8/功耗 | P2 | 可选 | 否 |
+| 新轻量难集 | P2 | 如 LCMamNet 等同量级 | 否 |
+| SAGCP PDF | P2 | 绝对表；现仅摘要相对量 | 否 |
+| 准则 Pd/Fa | P2 | 可选 | 否 |
 
-**准则 Group B（NUAA）**
+---
 
-| 准则 | IoU |
-|------|-----|
-| random | 0.7247 |
-| l1 | 0.7595（修复后；首次崩） |
-| task | 0.7374 |
-| contrast | 0.7408 |
-| full I | 0.7188 / 主表 0.7387 |
+## D. 审稿风险（已在正文防御/需心里有数）
 
-仍缺（可选）：准则各变体的统一脚本 Pd/Fa；α/配额敏感性曲线。
+1. **DNA 学生涨点大**：已写结构正则 + region；有 fair re-eval 与消融。  
+2. **完整 \(I\) 消融复现不高于 random/ℓ₁**：正文已改口为“可迁移选通道”，主体证据=跨骨干+板端。  
+3. **H1 仅 DNA + 一个轻量**：主张收窄为难集动机证据，非全面 SOTA 轻量表。  
+4. **UIU 主表 IoU 与统一 Pd 脚本旁证 IoU 不同口径**：主表不替换；Pd/Fa 用统一脚本。  
+5. **SCTrans 只压 CNN 宽度**：局限已写。  
+6. **文献**：MSHNet 已补 `MSHNet2024`；SCTrans/L2SK bib 的 note 需定稿前核对。
 
-## 5. 仍缺（不挡关机；投稿增强）
+---
 
-- P1：Pareto / 定性图；准则 Pd/Fa（可选）
-- P2：外部基线 H1（**已写入正文** `tab:h1_hard`，口径=难集分集训）
-  - 主对照：DNA 教师/学生 vs L2SK（NUAA/SIRST-V2 掉点；NUDT 可打平）
-  - IRPruneDet / LW / RepISD：单集权重，正文作参照不硬比
-  - SAGCP：摘要相对量；无公开权重
-  - 板端：不纳入从零轻量竞速；师生资源表已齐
-- P2 其它：INT8、功耗计、失败案例（可选）
+## E. 口径备忘
 
-## 6. 口径备忘
-
-- 主表 **IoU**：各骨干原 compress / 训练评测管线（UIU=rescale320 SoftIoU 日志）。
-- 表 **Pd/Fa**：`scripts/eval_pd_fa_unified.py`，thr=0.5，质心<3；旁证 IoU 为全局像素 IoU，**勿替换** UIU 主表 IoU。
-- SCTrans 配额 v3：`p=(0.05,0.15,0.25,0.35)`，蒸馏 350 epoch，`λ_region=0.75`。
+- 主表 IoU：各骨干原 compress / 训练管线（UIU=rescale320）。  
+- Pd/Fa：`scripts/eval_pd_fa_unified.py`，thr=0.5，质心&lt;3。  
+- H1：分集训练；难集=NUAA/SIRST-V2；**不是**跨集零样本。  
+- 板端：仅师生；L2SK 板端测过但不进主资源表。  
+- SCTrans 配额 v3：`p=(0.05,0.15,0.25,0.35)`，350 epoch，`λ_region=0.75`。
